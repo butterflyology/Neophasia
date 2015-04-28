@@ -1,14 +1,48 @@
 # Neophasia project
 
-library("geomorph")
-library("MASS")
+library("geomorph") # v2.1.4
+library("MASS") # v7.3-40
+library("vegan") # v2.2-1
 
+set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
 
 # save(list = ls(), file = "Neophasia_data.R")
 # load("Neophasia_data.R")
 
-# Import and chech data 
+##### Remeasurement data to test for error or bias
+Neo.meas <- read.csv("nwo_43_re_measure.csv", sep = ",", header = TRUE)
+head(Neo.meas)
+dim(Neo.meas)
+str(Neo.meas)
+
+x.vars <- t(Neo.meas[, c(seq(2, 40, 2))])
+str(x.vars)
+y.vars <- t(Neo.meas[, c(seq(3, 41, 2))])
+
+plot(x.vars, y.vars, pch = 19, col = rgb(0, 0, 0, 0.2), las = 1, ylab = "Y axis", xlab = "X axis")
+
+xy.vars <- matrix(data = NA, nrow = 20, ncol = 24)
+xy.vars[, c(seq(1, 23, 2))] <- x.vars
+xy.vars[, c(seq(2, 24, 2))] <- y.vars
+# xy.vars
+
+rownames(xy.vars) <- paste("Sample", seq(1:20), sep = "")
+colnames(xy.vars) <- paste("Coord", seq(1:24), sep = "")
+head(xy.vars)
+str(xy.vars)
+Trmt <- c(as.factor(rep(c(1:2), 10)))
+
+meas.array <- arrayspecs(A = xy.vars, p = 12, k = 2)
+test.gpa <- gpagen(meas.array, ProcD = TRUE, ShowPlot = TRUE)
+
+meas.2d <- two.d.array(test.gpa$coords)
+
+meas.results1 <- adonis(meas.2d ~ Trmt, method = "euclidean", permutations = 5e3)
+meas.results1
+
+##### Main Neophasia data set
+# Import and check data 
 Neophasia.raw <- read.delim("Neophasia_raw_data.txt", sep = "\t", header = TRUE)
 Neop.taxa <- Neophasia.raw[, 1]
 Neop.meta <- Neophasia.raw[, 1:2]
@@ -23,12 +57,12 @@ dim(Neop.array) # 12 lms, 222 samples
 dimnames(Neop.array)[[3]] <- Neop.taxa
 Neop.array[1, 1, 1]
 
-Neop.2d <- two.d.array(Neop.array)
-head(Neop.2d)
-
 Neop.gpa <- gpagen(Neop.array, ProcD = TRUE, ShowPlot = TRUE)
 plotOutliers(Neop.gpa$coords) # potential outliers to double check 
 # wo_43, ge_486, la_15, me_164
+
+Neop.2d <- two.d.array(Neop.gpa$coords)
+head(Neop.2d)
 
 # Now the LDA
 Neop.pc <- prcomp(Neop.2d)
@@ -51,14 +85,20 @@ plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors, pch = 19, las = 1, ylim = c
 legend("topleft", legend = c("Donner Pass", "Goat - late", "Woodfords", "Mendocino - early", "Mendocino - late", "Goat - early", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.5)
 
 # still need to ask about early / late populations
+# Mendocino early and late
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "red", pch = 19, cex = 1.5)
 
-# df
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "blue", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "goldenrod", pch = 19, cex = 1.5)
+
+
+### Discriminant function
 Neop.df <- predict(Neop.lda)
 
 Neop.pc.df <- cbind(Neop.pc.lda, Neop.df$posterior)
 names(Neop.pc.df)
 summary(Neop.pc.df)
-
 
 dp <- Neop.pc.df[Neop.pc.df$Population == "dp", ]
 ge <- Neop.pc.df[Neop.pc.df$Population == "ge", ]
@@ -70,11 +110,12 @@ or <- Neop.pc.df[Neop.pc.df$Population == "or", ]
 wo <- Neop.pc.df[Neop.pc.df$Population == "wo", ]
 
 par(mfrow = c(4, 2))
-hist(dp$dp, las = 1, col = "goldenrod")
-hist(ge$ge, las = 1, col = "dodgerblue")
-hist(gl$gl, las = 1, col = "dark red")
-hist(la$la, las = 1 , col = "dark green")
-hist(me$me, las = 1, col = "grey")
-hist(ml$ml, las = 1, col = "dark blue")
-hist(or$or, las = 1, col = "purple")
-hist(wo$wo, las = 1, col = "red")
+hist(dp$dp, las = 1, col = "goldenrod", main = "Donner Pass")
+hist(ge$ge, las = 1, col = "dodgerblue", main = "Goat Mtn. - early")
+hist(gl$gl, las = 1, col = "dark red", main = "Goat Mtn. - late")
+hist(la$la, las = 1 , col = "dark green", main = "Lang")
+hist(me$me, las = 1, col = "dark grey", main = "Mendocino - early")
+hist(ml$ml, las = 1, col = "dark blue", main = "Mendocino - late")
+hist(or$or, las = 1, col = "purple", main = "Oregon")
+hist(wo$wo, las = 1, col = "red", main = "Woodfords")
+

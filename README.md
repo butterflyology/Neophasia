@@ -24,3 +24,13 @@ wo = Woodfords (univoltine), 29
 
 o 11 April 2015
 Initial commit of code and data
+
+o 25 April 2015
+Added data file for Procrustes ANOVA:
+nwo_43_re_measure.csv
+
+Also, the covariates file is:
+Neophasia_wings.csv
+
+o 27 April 2015
+Checked remeasured data for errors using MANOVA, nothing systematic found. 
