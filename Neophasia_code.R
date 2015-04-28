@@ -119,3 +119,25 @@ hist(ml$ml, las = 1, col = "dark blue", main = "Mendocino - late")
 hist(or$or, las = 1, col = "purple", main = "Oregon")
 hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 
+##### kmeans
+head(Neop.2d)
+k1 <- kmeans(Neop.2d, 8)
+k1$cluster
+k1$centers
+
+library("cluster")
+library("fpc")
+plotcluster(Neop.2d, k1$cluster)
+
+library("HSAUR")
+dissE <- daisy(Neop.2d)
+dE2 <- dissE^2
+sk2 <- silhouette(k1$cl, dE2)
+plot(sk2)
+
+clusplot(Neop.2d, k1$cluster, color = TRUE, shade = TRUE, labels = 2, lines = 0)
+plotcluster(Neop.2d, k1$cluster)
+
+##### Covariate data
+melan <- read.csv("Neophasia_wings.csv", header = TRUE)
+head(melan)
