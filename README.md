@@ -1,4 +1,10 @@
 **Neophasia** *project code and data for Chris Hamm's part
+Basic quesitons:
+
+Are they the same or different? 
+Compare sympatric (allochronic) flights
+Compare the overall variation of the species with the variation between sympatric flights. 
+
 
 Using data provided by KB, 12 Type I landmarks for each wing (appears to be right wing), males only. 
 
@@ -21,7 +27,6 @@ or = Oregan (univoltine), 14
 wo = Woodfords (univoltine), 29
 
 
-
 o 11 April 2015
 Initial commit of code and data
 
@@ -34,3 +39,6 @@ Neophasia_wings.csv
 
 o 27 April 2015
 Checked remeasured data for errors using MANOVA, nothing systematic found. 
+
+o 3 May 2015
+

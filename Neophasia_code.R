@@ -66,7 +66,7 @@ head(Neop.2d)
 
 # Now the LDA
 Neop.pc <- prcomp(Neop.2d)
-summary(Neop.pc)$importance # PC1 explains ~69% of variance, PC2 ~20%
+summary(Neop.pc)$importance # PC1 explains ~25% of variance, PC2 ~15.8%
 
 Neop.pc.shape <- cbind(Neop.meta, Neop.pc$x[, 1:20]) # remove the last four dimensions because they are empty
 dim(Neop.pc.shape)
@@ -79,18 +79,44 @@ Neop.lda.scores <- as.matrix(Neop.pc.shape[, 3:22]) %*% as.matrix(Neop.lda$scali
 Neop.pc.lda <- cbind(Neop.pc.shape, Neop.lda.scores)
 unique(Neop.pc.shape$Population) # 8 populations
 
-colors <- c("goldenrod", "dodgerblue", "dark red", "dark green", "dark grey", "dark blue", "purple", "red")
 
-plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors, pch = 19, las = 1, ylim = c(-5, 5), xlim = c(-5, 5), xlab = expression(paste("LD"[1], " 69%")), ylab = expression(paste("LD"[2], " 20%")), cex = 1.3)
-legend("topleft", legend = c("Donner Pass", "Goat - late", "Woodfords", "Mendocino - early", "Mendocino - late", "Goat - early", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.5)
+colors2 <- matrix(Neop.meta$Population, dimnames = list(Neop.meta$Population))
+colors2[Neop.meta$Population == "dp"] <- "goldenrod"
+colors2[Neop.meta$Population == "ge"] <- "dodgerblue"
+colors2[Neop.meta$Population == "gl"] <- "dodgerblue"
+colors2[Neop.meta$Population == "wo"] <- "dark red"
+colors2[Neop.meta$Population == "me"] <- "dark green"
+colors2[Neop.meta$Population == "ml"] <- "dark green"
+colors2[Neop.meta$Population == "la"] <- "purple"
+colors2[Neop.meta$Population == "or"] <- "red"
 
-# still need to ask about early / late populations
+
+colors <- c("goldenrod", "dodgerblue", "dark blue", "dark red", "dark green", "dark grey", "purple", "red")
+
+# pdf(file = "LDA_plot.pdf", bg = "white")
+plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors2, pch = 19, las = 1, ylim = c(-5, 5), xlim = c(-5, 5), xlab = expression(paste("LD"[1], " 69%")), ylab = expression(paste("LD"[2], " 20%")), cex = 1.3)
+legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
+# dev.off()
+
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"])
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"])
+
+
 # Mendocino early and late
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "red", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "red"), bty = "n", pt.cex = 1.5)
 
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "blue", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5))
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "blue", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5))
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "goldenrod", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Goat early", "Goat late"), col = c("blue", "goldenrod"), pch = 19, pt.cex = 1.5, bty = "n")
+
+
+# plot the PCA
+summary(Neop.pc.shape)$importance
+plot(Neop.pc.shape[, 3], Neop.pc.shape[,4], pch = 19, col = colors2, ylim = c(-0.07, 0.07), xlim = c(-0.07, 0.07))
+legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
+
 
 
 ### Discriminant function
@@ -119,9 +145,40 @@ hist(ml$ml, las = 1, col = "dark blue", main = "Mendocino - late")
 hist(or$or, las = 1, col = "purple", main = "Oregon")
 hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 
+
 ##### kmeans
 head(Neop.2d)
-k1 <- kmeans(Neop.2d, 8)
+
+wssplot <- function(data, nc, seed){
+	wss <- (nrow(data) - 1) * sum(apply(data, 2, var))
+    for (i in 2:nc){
+    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers = i)$withinss)}
+    plot(1:nc, wss, type = "b", xlab = "Number of Clusters",
+    ylab = "Within groups sum of squares")
+}
+wssplot(Neop.df, nc = 10, seed = 1234)
+
+
+
+
+
+library(fpc)
+Neop.pamk <- pamk(Neop.2d)
+cat("number of clusters")
+plot(pam(Neop.2d), Neop.pamk$nc)
+
+
+
+
+
+
+
+Neop.k <- NbClust(Neop.2d, min.nc = 2, max.nc = 8, method = "kmeans")
+
+
+
+k1 <- kmeans(Neop.2d, 10)
 k1$cluster
 k1$centers
 
