@@ -31,14 +31,13 @@ rownames(xy.vars) <- paste("Sample", seq(1:20), sep = "")
 colnames(xy.vars) <- paste("Coord", seq(1:24), sep = "")
 head(xy.vars)
 str(xy.vars)
-Trmt <- c(as.factor(rep(c(1:2), 10)))
 
 meas.array <- arrayspecs(A = xy.vars, p = 12, k = 2)
 test.gpa <- gpagen(meas.array, ProcD = TRUE, ShowPlot = TRUE)
 
 meas.2d <- two.d.array(test.gpa$coords)
 
-meas.results1 <- adonis(meas.2d ~ Trmt, method = "euclidean", permutations = 5e3)
+meas.results1 <- adonis(meas.2d ~ Trmt, method = "euclidean", permutations = 5e3) # this is a free permutation of the data with treatments held constant. 
 meas.results1
 
 ##### Main Neophasia data set
@@ -82,11 +81,11 @@ unique(Neop.pc.shape$Population) # 8 populations
 
 colors2 <- matrix(Neop.meta$Population, dimnames = list(Neop.meta$Population))
 colors2[Neop.meta$Population == "dp"] <- "goldenrod"
-colors2[Neop.meta$Population == "ge"] <- "dodgerblue"
+colors2[Neop.meta$Population == "ge"] <- "dark blue"
 colors2[Neop.meta$Population == "gl"] <- "dodgerblue"
 colors2[Neop.meta$Population == "wo"] <- "dark red"
 colors2[Neop.meta$Population == "me"] <- "dark green"
-colors2[Neop.meta$Population == "ml"] <- "dark green"
+colors2[Neop.meta$Population == "ml"] <- "grey"
 colors2[Neop.meta$Population == "la"] <- "purple"
 colors2[Neop.meta$Population == "or"] <- "red"
 
@@ -103,9 +102,9 @@ points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.
 
 
 # Mendocino early and late
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "red", pch = 19, cex = 1.5)
-legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "red"), bty = "n", pt.cex = 1.5)
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "grey", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "grey"), bty = "n", pt.cex = 1.5)
 
 plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "blue", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5))
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "goldenrod", pch = 19, cex = 1.5)
