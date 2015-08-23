@@ -1,9 +1,9 @@
 # Neophasia project
 # Code contributions by Chris Hamm (KU)
 
-library("geomorph") # v2.1.6
-library("MASS") # v7.3-43
-library("vegan") # v2.3-0
+library("geomorph") # v2.1.4
+library("MASS") # v7.3-40
+library("vegan") # v2.3
 
 set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
@@ -37,25 +37,19 @@ meas.array <- arrayspecs(A = xy.vars, p = 12, k = 2)
 test.gpa <- gpagen(meas.array, ProcD = TRUE, ShowPlot = TRUE)
 
 meas.2d <- two.d.array(test.gpa$coords)
-Trmt <- rep(1:2, 10)
 
 meas.results1 <- adonis(meas.2d ~ Trmt, method = "euclidean", permutations = 5e3) # this is a free permutation of the data with treatments held constant. 
 meas.results1
 
-
-#####
-##### Main Neophasia data set - Import and check data 
-#####
-
-Neophasia.raw <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
-str(Neophasia.raw)
-Neophasia.raw$Id <- as.factor(Neophasia.raw$Id)
-
+##### Main Neophasia data set
+# Import and check data 
+Neophasia.raw <- read.delim("DataNeophasia_raw_data.txt", sep = "\t", header = TRUE)
 Neop.taxa <- Neophasia.raw[, 1]
 Neop.meta <- Neophasia.raw[, 1:2]
 Neophasia.raw <- Neophasia.raw[, 3:26]
 head(Neophasia.raw)
 summary(Neop.meta)
+
 
 # Prepare data for GPA using geomorph
 Neop.array <- arrayspecs(A = Neophasia.raw, p = 12, k = 2)
@@ -71,11 +65,7 @@ plotOutliers(Neop.gpa$coords) # potential outliers to double check
 Neop.2d <- two.d.array(Neop.gpa$coords)
 head(Neop.2d)
 
-
-#####
-##### Conduct the LDA
-#####
-
+# Now the LDA
 Neop.pc <- prcomp(Neop.2d)
 
 summary(Neop.pc)$importance # PC1 explains ~25% of variance, PC2 ~15.8%
@@ -98,32 +88,30 @@ colors2[Neop.meta$Population == "ge"] <- "dark blue"
 colors2[Neop.meta$Population == "gl"] <- "dodgerblue"
 colors2[Neop.meta$Population == "wo"] <- "dark red"
 colors2[Neop.meta$Population == "me"] <- "dark green"
-colors2[Neop.meta$Population == "ml"] <- "dark grey"
+colors2[Neop.meta$Population == "ml"] <- "grey"
 colors2[Neop.meta$Population == "la"] <- "purple"
 colors2[Neop.meta$Population == "or"] <- "red"
 
+
 colors <- c("goldenrod", "dodgerblue", "dark blue", "dark red", "dark green", "dark grey", "purple", "red")
 
-
 # pdf(file = "LDA_plot.pdf", bg = "white")
-plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors2, pch = 19, las = 1, ylim = c(-4.5, 4), xlim = c(-4.5, 4.5), xlab = expression(paste("LD"[1], " 69%")), ylab = expression(paste("LD"[2], " 20%")), cex = 1.3)
+plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors2, pch = 19, las = 1, ylim = c(-5, 5), xlim = c(-5, 5), xlab = expression(paste("LD"[1], " 69%")), ylab = expression(paste("LD"[2], " 20%")), cex = 1.3)
 legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
 # dev.off()
 
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"])
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"])
 
-# Highlight the points for Mendocino
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "red")
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "yellow")
 
-# Plot only Mendocino early and late
+# Mendocino early and late
 plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "dark grey", pch = 19, cex = 1.5)
-legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "dark grey"), bty = "n", pt.cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "grey", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "grey"), bty = "n", pt.cex = 1.5)
 
-# Plot only points from Goat
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "dark blue", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5), xlab = expression(paste("LD"[1])), ylab = expression(paste("LD"[2])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "dodgerblue", pch = 19, cex = 1.5)
-legend("topleft", legend = c("Goat early", "Goat late"), col = c("dark blue", "dodgerblue"), pch = 19, pt.cex = 1.5, bty = "n")
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "blue", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "goldenrod", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Goat early", "Goat late"), col = c("blue", "goldenrod"), pch = 19, pt.cex = 1.5, bty = "n")
 
 
 # plot the PCA
@@ -132,10 +120,8 @@ plot(Neop.pc.shape[, 3], Neop.pc.shape[,4], pch = 19, col = colors2, ylim = c(-0
 legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
 
 
-###
-### Discriminant function
-###
 
+### Discriminant function
 Neop.df <- predict(Neop.lda)
 
 Neop.pc.df <- cbind(Neop.pc.lda, Neop.df$posterior)
@@ -167,31 +153,18 @@ hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 #####
 ##### Classification problem - linear models 
 #####
-# Write a linear model asking if wing shape is explained by Population
+
 lm1 <- lm(as.matrix(Neop.pc$x[, 1:20]) ~ Neop.meta$Population)
 summary(lm1)
 car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically
 # pairwise tests might not be cool because the sample sizes are different
 
-# read in the covariate data
-# Read and merge the covariate data
-Neophasia.covs <- read.csv("Data/Neophasia_wings2.csv", header = TRUE)
-head(Neophasia.covs)
-str(Neophasia.covs)
-
-Neophasia.merged <- merge(x = Neophasia.raw, y = Neophasia.covs, by = Id)
 
 
 
-Neop.merged <- merge(x = )
-
-
-# is wing melanization explained by wing shape
-lm2 <- lm()
-
-
-
-
+##### Covariate data
+melan <- read.csv("Data/Neophasia_wings.csv", header = TRUE)
+head(melan)
 
 
 
