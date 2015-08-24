@@ -167,11 +167,20 @@ hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 #####
 ##### Classification problem - linear models 
 #####
-# Write a linear model asking if wing shape is explained by Population
-lm1 <- lm(as.matrix(Neop.pc$x[, 1:20]) ~ Neop.meta$Population)
-summary(lm1)
-car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically (but type III SS can be wonky)
+# Write a linear model asking if wing shape is explained by Population - using the reduced dimensionality of the PCA because sample size is not ginormous. nb, the first 13 PCs account for 95% of the variance.
+
+lm1 <- lm(as.matrix(Neop.pc$x[, 1:5]) ~ Neop.meta$Population)
+summary(lm1) # let's just consider the first five PCs worth
+car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically (but type III SS can be wonky because we may want the sequential test of the Type-I flavor)
 # pairwise tests might not be cool because the sample sizes are different
+
+
+# exploring how other "standard" tests handle the data
+adon1 <- adonis(Neop.2d ~ Neop.meta$Population, method = "euclidean", permutations = 1e3)
+adon1
+
+lm2 <- lm(Neop.pc$x[, 1:5] ~ Neop.meta$Population)
+summary(manova(lm2), test = "Wilks")
 
 # using the geomorph function, we will probably want to report this one. For single factor designs, the two RRPP approaches are the same.
 pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # models Population differences on shape
@@ -185,14 +194,66 @@ pD3 <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3
 pD3r <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models size variation in populations with residual randomization permutation procedure
 
 
+# ploting the effect of population on shape
+plot(Neop.2d[, c(seq(1, 24, 2)) ], Neop.2d[, c(seq(2, 24, 2))], pch = 19)
+points(gmean[, c(seq(1, 24, 2)) ], gmean[, c(seq(2, 24, 2))], pch = 19, col = "red")
+
+
+gmean <- t(apply(Neop.2d, 2, mean))
+
+lm.rem <- lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), model = TRUE, x = TRUE, y = TRUE, qr = TRUE)
+ybar.rem <- predict(lm.rem)
+res.rem <- resid(lm.rem)
+
+# output of residuals added to grand mean
+popOut <- res.rem
+for(i in 1:nrow(res.rem)){
+	popOut[i, ] = res.rem[i, ] + gmean
+}
+dim(popOut)
+popOut <- arrayspecs(popOut, p = 12, k = 2)
+popOut <- two.d.array(popOut)
+
+dp <- popOut[ Neop.meta$Population == "dp", ]
+ge <- popOut[ Neop.meta$Population == "ge", ]
+gl <- popOut[ Neop.meta$Population == "gl", ]
+la <- popOut[ Neop.meta$Population == "la", ]
+me <- popOut[ Neop.meta$Population == "me", ]
+ml <- popOut[ Neop.meta$Population == "ml", ]
+or <- popOut[ Neop.meta$Population == "or", ]
+wo <- popOut[ Neop.meta$Population == "wo", ]
+
+apply(dp, c(1, 2), mean)
+
+mdp <- mshape(dp)
+mge <- mshape(ge)
+mgl <- mshape(gl)
+mla <- mshape(la)
+mme <- mshape(me)
+mml <- mshape(ml)
+mor <- mshape(or)
+mwo <- mshape(wo)
+
+
+plot(mdp)
+
+
 
 
 
 # read in the covariate data
 # Read and merge the covariate data
-Neophasia.covs <- read.csv("Data/Neophasia_wings2.csv", header = TRUE)
+Neophasia.covs <- read.csv("Data/Neophasia_wings.csv", header = TRUE)
 head(Neophasia.covs)
 str(Neophasia.covs)
+summary(Neophasia.covs)
+which(Neophasia.covs$WAL >= 800)
+
+hist(Neophasia.covs$WAL) # Need to confirm the hig value (1157.1)
+hist(Neophasia.covs$WAR)
+hist(Neophasia.covs$MTL)
+hist(Neophasia.covs$MTR)
+
 
 Neophasia.merged <- merge(x = Neophasia.raw, y = Neophasia.covs, by = Id)
 
