@@ -173,6 +173,13 @@ summary(lm1)
 car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically
 # pairwise tests might not be cool because the sample sizes are different
 
+# using the geomorph function, we will probably want to report this one.
+procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # for single factor designs, the two RRPP approaches are the same.
+
+
+
+
+
 # read in the covariate data
 # Read and merge the covariate data
 Neophasia.covs <- read.csv("Data/Neophasia_wings2.csv", header = TRUE)
@@ -187,7 +194,7 @@ Neop.merged <- merge(x = )
 
 
 # is wing melanization explained by wing shape
-lm2 <- lm()
+
 
 
 
