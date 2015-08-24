@@ -170,11 +170,19 @@ hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 # Write a linear model asking if wing shape is explained by Population
 lm1 <- lm(as.matrix(Neop.pc$x[, 1:20]) ~ Neop.meta$Population)
 summary(lm1)
-car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically
+car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically (but type III SS can be wonky)
 # pairwise tests might not be cool because the sample sizes are different
 
-# using the geomorph function, we will probably want to report this one.
-procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # for single factor designs, the two RRPP approaches are the same.
+# using the geomorph function, we will probably want to report this one. For single factor designs, the two RRPP approaches are the same.
+pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # models Population differences on shape
+
+pD2 <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = FALSE) # models population differences and log(CS)
+
+pD2r <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models population differences and log(CS)
+
+pD3 <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = FALSE) # models size variation in populations
+
+pD3r <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models size variation in populations with residual randomization permutation procedure
 
 
 
@@ -194,12 +202,3 @@ Neop.merged <- merge(x = )
 
 
 # is wing melanization explained by wing shape
-
-
-
-
-
-
-
-
-
