@@ -245,7 +245,15 @@ plot(mdp)
 # Read and merge the covariate data
 Neophasia.covs <- read.csv("Data/Neophasia_wings.csv", header = TRUE)
 head(Neophasia.covs)
+# WAR = wing area left
+# WAR = wing area right
+# MTL = melanization total left
+# MTR = melanization total right
+
+
 str(Neophasia.covs)
+head(Neophasia.covs)
+
 summary(Neophasia.covs)
 which(Neophasia.covs$WAL >= 800)
 
@@ -255,11 +263,92 @@ hist(Neophasia.covs$MTL)
 hist(Neophasia.covs$MTR)
 
 
-Neophasia.merged <- merge(x = Neophasia.raw, y = Neophasia.covs, by = Id)
+
+summary(lma2 <- lm(Neophasia.covs$MTR ~ Neophasia.covs$WAR)) # 0.37 R^2
+plot(Neophasia.covs$WAR, Neophasia.covs$MTR, pch = 19) # super high correlation 
+abline(lma2, lwd = 2)
+
+summary(lma3 <- lm(Neophasia.covs$MTR ~ Neophasia.covs$MTL)) # 0.82 R^2 # melanization is highly correlated between wings, no surprise
+plot(Neophasia.covs$MTL, Neophasia.covs$MTR, pch = 19) # super high correlation between melanization area and wing total wing area
+abline(lma3, lwd = 2)
 
 
 
-Neop.merged <- merge(x = )
 
+
+plot(Neophasia.covs$MTL, Neophasia.covs$MTR, pch = 19, col = )
+
+
+
+Neophasia.raw2 <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
+str(Neophasia.raw2)
+
+intersect(Neophasia.raw2$Id, Neophasia.covs$Id)
+Neophasia.merged <- merge(x = Neophasia.raw2, y = Neophasia.covs, by = "Id")
+
+
+
+Neop.taxa2 <- Neophasia.merged[, 1]
+Neop.meta2 <- Neophasia.merged[, c(1:2, 27:30)]
+head(Neop.meta2)
+summary(Neop.meta2)
+
+Neophasia.raw2 <- Neophasia.merged[, 3:26]
+head(Neophasia.raw2)
+
+
+# Prepare data for GPA using geomorph
+Neop.array2 <- arrayspecs(A = Neophasia.raw2, p = 12, k = 2)
+Neop.array2[, , 1]
+dim(Neop.array2) # 12 lms, 180 samples
+dimnames(Neop.array2)[[3]] <- Neop.taxa2
+Neop.array2[1, 1, 1]
+
+Neop.gpa2 <- gpagen(Neop.array2, ProcD = TRUE, ShowPlot = TRUE)
+plotOutliers(Neop.gpa2$coords) # potential outliers to double check 
+# wo_43, ge_486, la_15, me_164
+
+Neop.2d2 <- two.d.array(Neop.gpa2$coords)
+head(Neop.2d2)
+
+
+procD.lm(Neop.2d2 ~ Neop.meta2$Population + log(Neop.gpa2$Csize), iter = 1e3, RRPP = FALSE)
+pD1
+
+procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$WAR, iter = 1e3, RRPP = FALSE)
+pD1.2
+
+procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL, iter = 1e3, RRPP = FALSE)
+
+procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTR, iter = 1e3, RRPP = FALSE)
+
+
+summary(Neophasia.merged)
+
+
+colors3 <- matrix(Neophasia.merged$Population, dimnames = list(Neophasia.merged$Population))
+colors3[Neophasia.merged$Population == "dp"] <- "goldenrod"
+colors3[Neophasia.merged$Population == "ge"] <- "dark blue"
+colors3[Neophasia.merged$Population == "gl"] <- "dodgerblue"
+colors3[Neophasia.merged$Population == "wo"] <- "dark red"
+colors3[Neophasia.merged$Population == "me"] <- "dark green"
+colors3[Neophasia.merged$Population == "ml"] <- "dark grey"
+colors3[Neophasia.merged$Population == "la"] <- "purple"
+colors3[Neophasia.merged$Population == "or"] <- "red"
+
+
+summary(lma3 <- lm(Neophasia.merged$MTR ~ Neophasia.merged$WAR)) # 0.42 R^2 # melanization is highly correlated between wings, no surprise
+plot(Neophasia.merged$WAR, Neophasia.merged$MTR, pch = 19, col = colors3, cex = 1.25, ylab = "Wing Melanization", xlab = "Wing Area") # super high correlation between melanization area and wing total wing area
+abline(lma3, lwd = 2)
+legend("topleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
+
+boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = "grey", pch = 19, ylab = "Melanized area", xlab = "Population")
+
+# consider plotting by latitude or altitude (sort, decreasing... etc.)
+
+
+lmzz <- lm(Neophasia.merged$MTR ~ Neophasia.merged$Population)
+summary(lmzz)
+summary(aov(lmzz))
 
 # is wing melanization explained by wing shape
