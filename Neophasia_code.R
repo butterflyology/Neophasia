@@ -1,9 +1,11 @@
 # Neophasia project
 # Code contributions by Chris Hamm (KU)
 
-library("geomorph") # v2.1.6
-library("MASS") # v7.3-43
-library("vegan") # v2.3-0
+library("geomorph")
+library("MASS")
+library("vegan")
+(SesInf <- sessionInfo())
+
 
 set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
@@ -36,11 +38,14 @@ str(xy.vars)
 meas.array <- arrayspecs(A = xy.vars, p = 12, k = 2)
 test.gpa <- gpagen(meas.array, ProcD = TRUE, ShowPlot = TRUE)
 
-meas.2d <- two.d.array(test.gpa$coords)
-Trmt <- rep(1:2, 10)
 
-meas.results1 <- adonis(meas.2d ~ Trmt, method = "euclidean", permutations = 5e3) # this is a free permutation of the data with treatments held constant. 
-meas.results1
+dimnames(test.gpa$coords)[[3]] <- paste(rep("sample", 20), rep(c(1:2), each = 2), sep = "")
+indivs <- dimnames(test.gpa$coords)[[3]]
+
+err <- procD.lm(test.gpa$coords~ factor(indivs), iter = 1e3) # no evidence of between samples 
+
+
+
 
 
 #####
@@ -163,7 +168,6 @@ hist(wo$wo, las = 1, col = "red", main = "Woodfords")
 
 
 
-
 #####
 ##### Classification problem - linear models 
 #####
@@ -245,11 +249,11 @@ plot(mdp)
 # Read and merge the covariate data
 Neophasia.covs <- read.csv("Data/Neophasia_wings.csv", header = TRUE)
 head(Neophasia.covs)
+summary(Neophasia.covs)
 # WAR = wing area left
 # WAR = wing area right
 # MTL = melanization total left
 # MTR = melanization total right
-
 
 str(Neophasia.covs)
 head(Neophasia.covs)
@@ -270,22 +274,16 @@ abline(lma2, lwd = 2)
 
 summary(lma3 <- lm(Neophasia.covs$MTR ~ Neophasia.covs$MTL)) # 0.82 R^2 # melanization is highly correlated between wings, no surprise
 plot(Neophasia.covs$MTL, Neophasia.covs$MTR, pch = 19) # super high correlation between melanization area and wing total wing area
-abline(lma3, lwd = 2)
+abline(lma3, lwd = 2) # use the left wing because that was the wing most measurements were taken from
 
 
 
-
-
-plot(Neophasia.covs$MTL, Neophasia.covs$MTR, pch = 19, col = )
-
-
-
-Neophasia.raw2 <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
+Neophasia.raw <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
 str(Neophasia.raw2)
 
 intersect(Neophasia.raw2$Id, Neophasia.covs$Id)
 Neophasia.merged <- merge(x = Neophasia.raw2, y = Neophasia.covs, by = "Id")
-
+summary(Neophasia.merged)
 
 
 Neop.taxa2 <- Neophasia.merged[, 1]
@@ -311,19 +309,49 @@ plotOutliers(Neop.gpa2$coords) # potential outliers to double check
 Neop.2d2 <- two.d.array(Neop.gpa2$coords)
 head(Neop.2d2)
 
-
-procD.lm(Neop.2d2 ~ Neop.meta2$Population + log(Neop.gpa2$Csize), iter = 1e3, RRPP = FALSE)
-pD1
-
-procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$WAR, iter = 1e3, RRPP = FALSE)
-pD1.2
-
-procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL, iter = 1e3, RRPP = FALSE)
-
-procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTR, iter = 1e3, RRPP = FALSE)
+# sanity check
+plot(Neop.meta2$WAR, Neop.gpa2$Csize, pch = 19)
 
 
-summary(Neophasia.merged)
+# asking the question: is wing shape explained by population, melanization, and the interaction of the two? 
+prlm1 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4) # suggests size does not vary allometrically by
+
+prlm2 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4)
+
+
+pdlm1 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, iter = 1e3, RRPP = TRUE)
+pdlm1 # Shape varies by population, and the interaction of population and melanization level significantly interact as well. 
+
+
+aDlm1 <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL,  ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, groups = ~ Neop.meta2$Population, iter = 1e3)
+
+aDlm1a <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL,  ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, groups = ~ Neop.meta2$Population, iter = 1e3, slope = ~ Neop.meta2$MTL)
+
+
+aDlm3 <- advanced.procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population + Neop.meta2$Population * log(Neop.gpa$Csize), ~ )
+
+
+
+
+
+
+
+pdlm2 <- procD.lm(Neop.2d2 ~ Neop.meta2$MTL, iter = 1e3)
+pdlm2 # melanization is strongly associated with shape
+
+pdlm3 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population, iter = 1e3)
+pdlm3
+
+# post-foc test 
+adlm3 <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population, iter = 10)
+
+
+pdlm4 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population * Neop.meta2$MTL, iter = 1e3, RRPP = TRUE)
+pdlm4
+
+
+
+
 
 
 colors3 <- matrix(Neophasia.merged$Population, dimnames = list(Neophasia.merged$Population))
@@ -342,13 +370,6 @@ plot(Neophasia.merged$WAR, Neophasia.merged$MTR, pch = 19, col = colors3, cex = 
 abline(lma3, lwd = 2)
 legend("topleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
 
-boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = "grey", pch = 19, ylab = "Melanized area", xlab = "Population")
+boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = "grey", outline = FALSE, ylab = "Melanized area", xlab = "Population")
 
 # consider plotting by latitude or altitude (sort, decreasing... etc.)
-
-
-lmzz <- lm(Neophasia.merged$MTR ~ Neophasia.merged$Population)
-summary(lmzz)
-summary(aov(lmzz))
-
-# is wing melanization explained by wing shape
