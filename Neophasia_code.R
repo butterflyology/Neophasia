@@ -43,9 +43,7 @@ dimnames(test.gpa$coords)[[3]] <- paste(rep("sample", 20), rep(c(1:2), each = 2)
 indivs <- dimnames(test.gpa$coords)[[3]]
 
 err <- procD.lm(test.gpa$coords~ factor(indivs), iter = 1e3) # no evidence of between samples 
-
-
-
+err
 
 
 #####
@@ -134,13 +132,14 @@ legend("topleft", legend = c("Goat early", "Goat late"), col = c("dark blue", "d
 # plot the PCA
 summary(Neop.pc.shape)$importance
 plot(Neop.pc.shape[, 3], Neop.pc.shape[,4], pch = 19, col = colors2, ylim = c(-0.07, 0.07), xlim = c(-0.07, 0.07))
-legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
+legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3) # The differentiation is much clearer in the LDA
 
 
 ###
 ### Discriminant function
 ###
 
+# Asks if, given the mean shape for a population, how often is a member of that population correctly assigned to that population. Assignment is based on that individual's shape being closest to the mean shape for its home population. 
 Neop.df <- predict(Neop.lda)
 
 Neop.pc.df <- cbind(Neop.pc.lda, Neop.df$posterior)
@@ -165,43 +164,34 @@ hist(me$me, las = 1, col = "dark grey", main = "Mendocino - early")
 hist(ml$ml, las = 1, col = "dark blue", main = "Mendocino - late")
 hist(or$or, las = 1, col = "purple", main = "Oregon")
 hist(wo$wo, las = 1, col = "red", main = "Woodfords")
-
+par(mfrow = c(1, 1))
 
 
 #####
 ##### Classification problem - linear models 
 #####
-# Write a linear model asking if wing shape is explained by Population - using the reduced dimensionality of the PCA because sample size is not ginormous. nb, the first 13 PCs account for 95% of the variance.
 
+# We can test the statistical significance of the shape differences among populations in a few different ways. 
+
+# This method uses the first few PCs and asks if 
 lm1 <- lm(as.matrix(Neop.pc$x[, 1:5]) ~ Neop.meta$Population)
 summary(lm1) # let's just consider the first five PCs worth
 car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically (but type III SS can be wonky because we may want the sequential test of the Type-I flavor)
 # pairwise tests might not be cool because the sample sizes are different
 
+# We can use the Procrustes superimposed data and use Procrustes ANOVA (which quantifies the relative amount of shape variation attributable to factors).
 
-# exploring how other "standard" tests handle the data
-adon1 <- adonis(Neop.2d ~ Neop.meta$Population, method = "euclidean", permutations = 1e3)
-adon1
+# Does shape differ by populations?
+pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # RRPP = FALSE here because it is a one-factor test
+pD1 # says there are significant shape difference in shape among populations
 
-lm2 <- lm(Neop.pc$x[, 1:5] ~ Neop.meta$Population)
-summary(manova(lm2), test = "Wilks")
+# Does shape vary by population AND size?
+pD2 <- procD.lm(Neop.2d ~ (Neop.meta$Population * log(Neop.gpa$Csize)), iter = 1e3, RRPP = TRUE)
+pD2 # there is a significant interaction between population AND size, so the main effects can't be parsed
 
-# using the geomorph function, we will probably want to report this one. For single factor designs, the two RRPP approaches are the same.
-pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # models Population differences on shape
-
-
-
-pD2 <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models population differences and log(CS)
-
-pD3 <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = FALSE) # models size variation in populations
-
-pD3r <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models size variation in populations with residual randomization permutation procedure
-
-
-
-
-
-
+#####
+##### Other covariate data
+#####
 
 # read in the covariate data
 # Read and merge the covariate data (wings were digitized on left side)
@@ -212,15 +202,9 @@ summary(Neophasia.covs)
 # WAR = wing area right
 # MTL = melanization total left
 # MTR = melanization total right
-
-str(Neophasia.covs)
-head(Neophasia.covs)
-
 summary(Neophasia.covs)
 which(Neophasia.covs$WAL >= 800) # We won't use WAL because of an error
 
-
-# Create a 2nd data set for the merged taxa (few individuals were landmarked but no covariates were taken from them)
 Neophasia.raw2 <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
 str(Neophasia.raw2)
 intersect(Neophasia.raw2$Id, Neophasia.covs$Id)
@@ -251,71 +235,11 @@ head(Neop.2d2)
 plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroid size very highly correlated. 
 
 
-# asking the question: is wing shape explained by population, melanization, and the interaction of the two? 
+#####
+##### Using melanization levels
+#####
 
+# Does shape vary by populations AND melanization?
+pD3 <- procD.lm(Neop.2d2 ~ (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e3)
+pD3 # Populations and melanization level interact, can't tell the direction.
 
-prlm0 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + (Neop.meta2$Population * Neop.meta2$MTL) + log(Neop.gpa2$Csize) * (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e4)
-# a non significant log(CS) * (Pop * Mel) would indicate a common population by melanization level has common size-shape allometry
-
-
-prlm1 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4) 
-
-
-
-prlm2 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4)
-
-
-pdlm1 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, iter = 1e3, RRPP = TRUE)
-pdlm1 # Shape varies by population, and the interaction of population and melanization level significantly interact as well. 
-
-
-aDlm1 <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL,  ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, groups = ~ Neop.meta2$Population, iter = 1e3)
-
-aDlm1a <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population + Neop.meta2$MTL,  ~ Neop.meta2$Population + Neop.meta2$MTL + Neop.meta2$Population * Neop.meta2$MTL, groups = ~ Neop.meta2$Population, iter = 1e3, slope = ~ Neop.meta2$MTL)
-
-
-aDlm3 <- advanced.procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population + Neop.meta2$Population * log(Neop.gpa$Csize), ~ )
-
-
-
-
-
-
-
-pdlm2 <- procD.lm(Neop.2d2 ~ Neop.meta2$MTL, iter = 1e3)
-pdlm2 # melanization is strongly associated with shape
-
-pdlm3 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population, iter = 1e3)
-pdlm3
-
-# post-foc test 
-adlm3 <- advanced.procD.lm(Neop.2d2 ~ Neop.meta2$Population, iter = 10)
-
-
-pdlm4 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population * Neop.meta2$MTL, iter = 1e3, RRPP = TRUE)
-pdlm4
-
-
-
-
-
-
-colors3 <- matrix(Neophasia.merged$Population, dimnames = list(Neophasia.merged$Population))
-colors3[Neophasia.merged$Population == "dp"] <- "goldenrod"
-colors3[Neophasia.merged$Population == "ge"] <- "dark blue"
-colors3[Neophasia.merged$Population == "gl"] <- "dodgerblue"
-colors3[Neophasia.merged$Population == "wo"] <- "dark red"
-colors3[Neophasia.merged$Population == "me"] <- "dark green"
-colors3[Neophasia.merged$Population == "ml"] <- "dark grey"
-colors3[Neophasia.merged$Population == "la"] <- "purple"
-colors3[Neophasia.merged$Population == "or"] <- "red"
-
-
-summary(lma3 <- lm(Neophasia.merged$MTR ~ Neophasia.merged$WAR)) # 0.42 R^2 # melanization is highly correlated between wings, no surprise
-plot(Neophasia.merged$WAR, Neophasia.merged$MTR, pch = 19, col = colors3, cex = 1.25, ylab = "Wing Melanization", xlab = "Wing Area") # super high correlation between melanization area and wing total wing area
-abline(lma3, lwd = 2)
-legend("topleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
-
-boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = "grey", outline = FALSE, ylab = "Melanized area", xlab = "Population")
-
-# consider plotting by latitude or altitude (sort, decreasing... etc.)
