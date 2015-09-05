@@ -189,64 +189,22 @@ summary(manova(lm2), test = "Wilks")
 # using the geomorph function, we will probably want to report this one. For single factor designs, the two RRPP approaches are the same.
 pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # models Population differences on shape
 
-pD2 <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = FALSE) # models population differences and log(CS)
 
-pD2r <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models population differences and log(CS)
+
+pD2 <- procD.lm(Neop.2d ~ Neop.meta$Population + log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models population differences and log(CS)
 
 pD3 <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = FALSE) # models size variation in populations
 
 pD3r <- procD.lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), iter = 1e3, RRPP = TRUE) # models size variation in populations with residual randomization permutation procedure
 
 
-# ploting the effect of population on shape
-plot(Neop.2d[, c(seq(1, 24, 2)) ], Neop.2d[, c(seq(2, 24, 2))], pch = 19)
-points(gmean[, c(seq(1, 24, 2)) ], gmean[, c(seq(2, 24, 2))], pch = 19, col = "red")
-
-
-gmean <- t(apply(Neop.2d, 2, mean))
-
-lm.rem <- lm(Neop.2d ~ Neop.meta$Population * log(Neop.gpa$Csize), model = TRUE, x = TRUE, y = TRUE, qr = TRUE)
-ybar.rem <- predict(lm.rem)
-res.rem <- resid(lm.rem)
-
-# output of residuals added to grand mean
-popOut <- res.rem
-for(i in 1:nrow(res.rem)){
-	popOut[i, ] = res.rem[i, ] + gmean
-}
-dim(popOut)
-popOut <- arrayspecs(popOut, p = 12, k = 2)
-popOut <- two.d.array(popOut)
-
-dp <- popOut[ Neop.meta$Population == "dp", ]
-ge <- popOut[ Neop.meta$Population == "ge", ]
-gl <- popOut[ Neop.meta$Population == "gl", ]
-la <- popOut[ Neop.meta$Population == "la", ]
-me <- popOut[ Neop.meta$Population == "me", ]
-ml <- popOut[ Neop.meta$Population == "ml", ]
-or <- popOut[ Neop.meta$Population == "or", ]
-wo <- popOut[ Neop.meta$Population == "wo", ]
-
-apply(dp, c(1, 2), mean)
-
-mdp <- mshape(dp)
-mge <- mshape(ge)
-mgl <- mshape(gl)
-mla <- mshape(la)
-mme <- mshape(me)
-mml <- mshape(ml)
-mor <- mshape(or)
-mwo <- mshape(wo)
-
-
-plot(mdp)
 
 
 
 
 
 # read in the covariate data
-# Read and merge the covariate data
+# Read and merge the covariate data (wings were digitized on left side)
 Neophasia.covs <- read.csv("Data/Neophasia_wings.csv", header = TRUE)
 head(Neophasia.covs)
 summary(Neophasia.covs)
@@ -259,39 +217,22 @@ str(Neophasia.covs)
 head(Neophasia.covs)
 
 summary(Neophasia.covs)
-which(Neophasia.covs$WAL >= 800)
-
-hist(Neophasia.covs$WAL) # Need to confirm the hig value (1157.1)
-hist(Neophasia.covs$WAR)
-hist(Neophasia.covs$MTL)
-hist(Neophasia.covs$MTR)
+which(Neophasia.covs$WAL >= 800) # We won't use WAL because of an error
 
 
-
-summary(lma2 <- lm(Neophasia.covs$MTR ~ Neophasia.covs$WAR)) # 0.37 R^2
-plot(Neophasia.covs$WAR, Neophasia.covs$MTR, pch = 19) # super high correlation 
-abline(lma2, lwd = 2)
-
-summary(lma3 <- lm(Neophasia.covs$MTR ~ Neophasia.covs$MTL)) # 0.82 R^2 # melanization is highly correlated between wings, no surprise
-plot(Neophasia.covs$MTL, Neophasia.covs$MTR, pch = 19) # super high correlation between melanization area and wing total wing area
-abline(lma3, lwd = 2) # use the left wing because that was the wing most measurements were taken from
-
-
-
-Neophasia.raw <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
+# Create a 2nd data set for the merged taxa (few individuals were landmarked but no covariates were taken from them)
+Neophasia.raw2 <- read.delim("Data/Neophasia_raw_data.txt", sep = "\t", header = TRUE)
 str(Neophasia.raw2)
-
 intersect(Neophasia.raw2$Id, Neophasia.covs$Id)
 Neophasia.merged <- merge(x = Neophasia.raw2, y = Neophasia.covs, by = "Id")
 summary(Neophasia.merged)
 
-
 Neop.taxa2 <- Neophasia.merged[, 1]
 Neop.meta2 <- Neophasia.merged[, c(1:2, 27:30)]
-head(Neop.meta2)
+head(Neop.meta2) # create a matched covariate data set
 summary(Neop.meta2)
 
-Neophasia.raw2 <- Neophasia.merged[, 3:26]
+Neophasia.raw2 <- Neophasia.merged[, 3:26] # just the raw coordinates of the matched data
 head(Neophasia.raw2)
 
 
@@ -303,18 +244,23 @@ dimnames(Neop.array2)[[3]] <- Neop.taxa2
 Neop.array2[1, 1, 1]
 
 Neop.gpa2 <- gpagen(Neop.array2, ProcD = TRUE, ShowPlot = TRUE)
-plotOutliers(Neop.gpa2$coords) # potential outliers to double check 
-# wo_43, ge_486, la_15, me_164
-
 Neop.2d2 <- two.d.array(Neop.gpa2$coords)
 head(Neop.2d2)
 
 # sanity check
-plot(Neop.meta2$WAR, Neop.gpa2$Csize, pch = 19)
+plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroid size very highly correlated. 
 
 
 # asking the question: is wing shape explained by population, melanization, and the interaction of the two? 
-prlm1 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4) # suggests size does not vary allometrically by
+
+
+prlm0 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + (Neop.meta2$Population * Neop.meta2$MTL) + log(Neop.gpa2$Csize) * (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e4)
+# a non significant log(CS) * (Pop * Mel) would indicate a common population by melanization level has common size-shape allometry
+
+
+prlm1 <- procD.lm(Neop.2d2 ~ log(Neop.gpa2$Csize) + Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4) 
+
+
 
 prlm2 <- procD.lm(Neop.2d2 ~ Neop.meta2$Population * Neop.meta2$MTL, RRPP = TRUE, iter = 1e4)
 
