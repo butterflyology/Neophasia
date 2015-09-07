@@ -3,7 +3,6 @@
 
 library("geomorph")
 library("MASS")
-library("vegan")
 (SesInf <- sessionInfo())
 
 
@@ -171,7 +170,7 @@ par(mfrow = c(1, 1))
 ##### Classification problem - linear models 
 #####
 
-# We can test the statistical significance of the shape differences among populations in a few different ways. 
+# We can test the statistical significance of the shape differences among populations in a few different ways. However, a significant issue we face is that we have unbalanced sample sizes by factors.  
 
 # This method uses the first few PCs and asks if 
 lm1 <- lm(as.matrix(Neop.pc$x[, 1:5]) ~ Neop.meta$Population)
@@ -242,4 +241,3 @@ plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroi
 # Does shape vary by populations AND melanization?
 pD3 <- procD.lm(Neop.2d2 ~ (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e3)
 pD3 # Populations and melanization level interact, can't tell the direction.
-
