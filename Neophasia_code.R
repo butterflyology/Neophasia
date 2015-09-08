@@ -181,13 +181,7 @@ advanced.procD.lm(pd0, pd0.1)
 
 apD0 <- advanced.procD.lm(pd0, pd0.1, groups = ~ Neop.meta$Population, iter = 1e4)
 
-# 
-pd1 <- lm(Neop.2d2 ~ 1)
-pd1.1 <- lm(Neop.2d2 ~ Neop.meta2$Population)
-model.matrix(pd1)
-model.matrix(pd2)
 
-apD1 <- advanced.procD.lm(pd1, pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
 
 
 
