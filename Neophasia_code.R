@@ -170,23 +170,27 @@ par(mfrow = c(1, 1))
 ##### Classification problem - linear models 
 #####
 
-# We can test the statistical significance of the shape differences among populations in a few different ways. However, a significant issue we face is that we have unbalanced sample sizes by factors.  
+# Procrustes Distance ANOVA
 
-# This method uses the first few PCs and asks if 
-lm1 <- lm(as.matrix(Neop.pc$x[, 1:5]) ~ Neop.meta$Population)
-summary(lm1) # let's just consider the first five PCs worth
-car::Anova(lm1, test = "Wilks", type = "III") # yes, the populations are different morphologically (but type III SS can be wonky because we may want the sequential test of the Type-I flavor)
-# pairwise tests might not be cool because the sample sizes are different
+# I think we should just proceed with the unbalanced samples and report results with a mention that it could be an issue. The randomization procedure used by RRPP is solid.
 
-# We can use the Procrustes superimposed data and use Procrustes ANOVA (which quantifies the relative amount of shape variation attributable to factors).
+# Using the full data set to ask if shape varies among populations
+pd0 <- lm(Neop.2d ~ 1)
+pd0.1 <- lm(Neop.2d ~ Neop.meta$Population)
+advanced.procD.lm(pd0, pd0.1)
 
-# Does shape differ by populations?
-pD1 <- procD.lm(Neop.2d ~ Neop.meta$Population, iter = 1e3, RRPP = FALSE) # RRPP = FALSE here because it is a one-factor test
-pD1 # says there are significant shape difference in shape among populations
+apD0 <- advanced.procD.lm(pd0, pd0.1, groups = ~ Neop.meta$Population, iter = 1e4)
 
-# Does shape vary by population AND size?
-pD2 <- procD.lm(Neop.2d ~ (Neop.meta$Population * log(Neop.gpa$Csize)), iter = 1e3, RRPP = TRUE)
-pD2 # there is a significant interaction between population AND size, so the main effects can't be parsed
+# 
+pd1 <- lm(Neop.2d2 ~ 1)
+pd1.1 <- lm(Neop.2d2 ~ Neop.meta2$Population)
+model.matrix(pd1)
+model.matrix(pd2)
+
+apD1 <- advanced.procD.lm(pd1, pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
+
+
+
 
 #####
 ##### Other covariate data
@@ -234,9 +238,26 @@ head(Neop.2d2)
 plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroid size very highly correlated. 
 
 
+
 #####
 ##### Using melanization levels
 #####
+
+colors3 <- matrix(Neophasia.merged$Population, dimnames = list(Neophasia.merged$Population))
+colors3[Neophasia.merged$Population == "dp"] <- "goldenrod"
+colors3[Neophasia.merged$Population == "ge"] <- "dark blue"
+colors3[Neophasia.merged$Population == "gl"] <- "dodgerblue"
+colors3[Neophasia.merged$Population == "wo"] <- "dark red"
+colors3[Neophasia.merged$Population == "me"] <- "dark green"
+colors3[Neophasia.merged$Population == "ml"] <- "dark grey"
+colors3[Neophasia.merged$Population == "la"] <- "purple"
+colors3[Neophasia.merged$Population == "or"] <- "red"
+
+# pdf(file = "Images/Mel-box.pdf", bg = "white")
+boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = TRUE)
+# dev.off()
+
+
 
 # Does shape vary by populations AND melanization?
 pD3 <- procD.lm(Neop.2d2 ~ (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e3)
