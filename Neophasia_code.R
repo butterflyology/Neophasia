@@ -3,6 +3,7 @@
 
 library("geomorph")
 library("MASS")
+library("gdata")
 (SesInf <- sessionInfo())
 
 
@@ -248,11 +249,45 @@ colors3[Neophasia.merged$Population == "la"] <- "purple"
 colors3[Neophasia.merged$Population == "or"] <- "red"
 
 # pdf(file = "Images/Mel-box.pdf", bg = "white")
-boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = TRUE)
+boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = TRUE, las = 1)
 # dev.off()
 
 
 
-# Does shape vary by populations AND melanization?
-pD3 <- procD.lm(Neop.2d2 ~ (Neop.meta2$Population * Neop.meta2$MTL), RRPP = TRUE, iter = 1e3)
-pD3 # Populations and melanization level interact, can't tell the direction.
+# Does population explain melanization? This generates the same associations as Figure 7, but without using the model residuals. To me it is more intuitive and has the added benefit of making a population level distance matrix for melanization levels. 
+pd1 <- lm(Neop.meta2$MTL ~ 1)
+pd1.1 <- lm(Neop.meta2$MTL ~ Neop.meta2$Population)
+
+apD1 <- advanced.procD.lm(pd1,pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
+
+
+
+
+# association between pairwise shape distance and genetic distance (Gst)
+Gst <- read.csv("Gst-dist.csv", header = TRUE, row.names = 1)
+Gst
+
+rownames(Gst)
+colnames(Gst)
+rownames(apD0$Means.dist)
+colnames(apD0$Means.dist)
+
+Sdist.diag <- lowerTriangle(apD0$Means.dist)
+Gst.diag <- lowerTriangle(Gst)
+Mel.diag <- lowerTriangle(apD1$Means.dist)
+
+
+plot(Gst.diag, Sdist.diag, pch = 19, las = 1, ylab = "Shape distance", xlab = "Genetic distance", xlim = c(0.025, 0.08), ylim = c(0.015, 0.045))
+GSlm <- lm(Sdist.diag ~ Gst.diag)
+summary(GSlm)
+abline(GSlm)
+
+plot(Gst.diag, Mel.diag, pch = 19, las = 1, ylab = "Melanization distance", xlab = "Genetic distance", xlim = c(0.025, 0.08), ylim = c(0, 40))
+GMellm <- lm(Mel.diag ~ Gst.diag)
+summary(GMellm)
+abline(GMellm)
+
+plot(Sdist.diag, Mel.diag, pch = 19, las = 1, ylab = "Melanization distance", xlab = "Shape distance", xlim = c(0.015, 0.045), ylim = c(0, 40))
+SMellm <- lm(Mel.diag ~ Sdist.diag)
+summary(SMellm)
+abline(SMellm)
