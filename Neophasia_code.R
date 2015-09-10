@@ -292,6 +292,11 @@ SMellm <- lm(Mel.diag ~ Sdist.diag)
 summary(SMellm)
 abline(SMellm)
 
+# What about making the point that the shape differences between the sympatric populations are on the scale of those we observe for the really geographically distant ones? Is it secondary contact or in situ change? 
+
+
+
+
 #####
 ##### Plot just the sympatric pairs with warp grids
 #####
