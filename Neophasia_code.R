@@ -4,7 +4,6 @@
 library("geomorph")
 library("MASS")
 library("gdata")
-(SesInf <- sessionInfo())
 
 
 set.seed(2342351)
@@ -12,6 +11,7 @@ setwd("~/Desktop/Projects/Neophasia/")
 
 # save(list = ls(), file = "Neophasia_data.R")
 # load("Neophasia_data.R")
+(SesInf <- sessionInfo())
 
 ##### Remeasurement data to test for error or bias
 Neo.meas <- read.csv("Data/nwo_43_re_measure.csv", sep = ",", header = TRUE)
@@ -316,8 +316,15 @@ Y[,, 8] # wo
 # ge is 2, gl 3, me 5, ml 6.
 
 reference <- mshape(Neop.gpa$coords)
+reference <- reference %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE) # rotate the object 180 degrees
 
-plotRefToTarget(reference, Y[, , 2], method = "TPS", mag = 1)
+Y.me2 <- Y[, , 5] %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE)
+Y.ml2 <- Y[, , 6] %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE)
+Y.ge2 <- Y[, , 2] %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE)
+Y.gl2 <- Y[, , 3] %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE)
+
+
+plotRefToTarget(reference, Y.me2, method = "TPS", mag = 1)
 
 
 # pdf(file = "Images/Pairs-plot.pdf", bg = "white")
@@ -330,23 +337,27 @@ points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.
 par(fig = c(0.6, 1, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(1, 1, 1, 1))
-plotRefToTarget(reference, Y[, , 5], method = "TPS", mag = 6)
+me.pars <- gridPar(pt.bg = "dark green")
+plotRefToTarget(reference, Y.me2, method = "TPS", mag = 6, gridPars = me.pars)
 
 #lower left, ml
 par(fig = c(0.05, 0.45, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-plotRefToTarget(reference, Y[, , 6], method = "TPS", mag = 5)
+ml.pars <- gridPar(pt.bg = "dark grey")
+plotRefToTarget(reference, Y.ml2, method = "TPS", mag = 5, gridPars = ml.pars)
 
 # upper right, ge
 par(fig = c(0.6, 1, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-plotRefToTarget(reference, Y[, , 2], method = "TPS", mag = 5)
+ge.pars <- gridPar(pt.bg = "dark blue")
+plotRefToTarget(reference, Y.ge2, method = "TPS", mag = 5, gridPars = ge.pars)
 
 #upper left, gl
 par(fig = c(0.05, 0.45, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-plotRefToTarget(reference, Y[, , 3], method = "TPS", mag = 5)
+gl.pars <- gridPar(pt.bg = "dodgerblue")
+plotRefToTarget(reference, Y.gl2, method = "TPS", mag = 5, gridPars = gl.pars)
 # dev.off()
