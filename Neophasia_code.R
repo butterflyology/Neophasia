@@ -291,3 +291,57 @@ plot(Sdist.diag, Mel.diag, pch = 19, las = 1, ylab = "Melanization distance", xl
 SMellm <- lm(Mel.diag ~ Sdist.diag)
 summary(SMellm)
 abline(SMellm)
+
+#####
+##### Plot just the sympatric pairs with warp grids
+#####
+
+p <- dim(Neop.gpa$coords)[1]
+k <- dim(Neop.gpa$coords)[2]
+group <- Neop.meta[, 2]
+Y <- array(NA, dim = c(p, k, length(levels(group))))
+dimnames(Y)[[3]] <- levels(group)
+
+for(i in 1:length(levels(group))){
+	grp <- Neop.2d[which(group == levels(group)[i]), ]
+	foo <- arrayspecs(grp, p, k)
+	Y[, , i] <- mshape(foo)
+}
+Y[,, 8] # wo
+# ge is 2, gl 3, me 5, ml 6.
+
+reference <- mshape(Neop.gpa$coords)
+
+plotRefToTarget(reference, Y[, , 2], method = "TPS", mag = 1)
+
+
+# pdf(file = "Images/Pairs-plot.pdf", bg = "white")
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-6, 6.0), xlim = c(-6, 6), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "dark grey", pch = 19, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "dark blue", pch = 19, las = 1, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "dodgerblue", pch = 19, cex = 1.5)
+
+# lower right, me
+par(fig = c(0.6, 1, 0.1, 0.4), new = TRUE)
+plot.new()
+par(mar = c(1, 1, 1, 1))
+plotRefToTarget(reference, Y[, , 5], method = "TPS", mag = 6)
+
+#lower left, ml
+par(fig = c(0.05, 0.45, 0.1, 0.4), new = TRUE)
+plot.new()
+par(mar = c(rep(1, 4)))
+plotRefToTarget(reference, Y[, , 6], method = "TPS", mag = 5)
+
+# upper right, ge
+par(fig = c(0.6, 1, 0.63, 0.93), new = TRUE)
+plot.new()
+par(mar = c(rep(1, 4)))
+plotRefToTarget(reference, Y[, , 2], method = "TPS", mag = 5)
+
+#upper left, gl
+par(fig = c(0.05, 0.45, 0.63, 0.93), new = TRUE)
+plot.new()
+par(mar = c(rep(1, 4)))
+plotRefToTarget(reference, Y[, , 3], method = "TPS", mag = 5)
+# dev.off()
