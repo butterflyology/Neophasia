@@ -328,36 +328,36 @@ plotRefToTarget(reference, Y.me2, method = "TPS", mag = 1)
 
 
 # pdf(file = "Images/Pairs-plot.pdf", bg = "white")
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-6, 6.0), xlim = c(-6, 6), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "dark grey", pch = 19, cex = 1.5)
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "dark blue", pch = 19, las = 1, cex = 1.5)
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "dodgerblue", pch = 19, cex = 1.5)
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "springgreen2", pch = 19, las = 1, cex = 1.5, ylim = c(-6, 6.0), xlim = c(-6, 6), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "springgreen4", pch = 19, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "plum2", pch = 19, las = 1, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "plum4", pch = 19, cex = 1.5)
 
 # lower right, me
 par(fig = c(0.6, 1, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(1, 1, 1, 1))
-me.pars <- gridPar(pt.bg = "dark green")
+me.pars <- gridPar(pt.bg = "springgreen2")
 plotRefToTarget(reference, Y.me2, method = "TPS", mag = 6, gridPars = me.pars)
 
 #lower left, ml
 par(fig = c(0.05, 0.45, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ml.pars <- gridPar(pt.bg = "dark grey")
+ml.pars <- gridPar(pt.bg = "springgreen4")
 plotRefToTarget(reference, Y.ml2, method = "TPS", mag = 5, gridPars = ml.pars)
 
 # upper right, ge
 par(fig = c(0.6, 1, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ge.pars <- gridPar(pt.bg = "dark blue")
+ge.pars <- gridPar(pt.bg = "plum2")
 plotRefToTarget(reference, Y.ge2, method = "TPS", mag = 5, gridPars = ge.pars)
 
 #upper left, gl
 par(fig = c(0.05, 0.45, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-gl.pars <- gridPar(pt.bg = "dodgerblue")
+gl.pars <- gridPar(pt.bg = "plum4")
 plotRefToTarget(reference, Y.gl2, method = "TPS", mag = 5, gridPars = gl.pars)
 # dev.off()
