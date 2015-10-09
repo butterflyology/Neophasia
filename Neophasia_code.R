@@ -96,16 +96,16 @@ unique(Neop.pc.shape$Population) # 8 populations
 
 
 colors2 <- matrix(Neop.meta$Population, dimnames = list(Neop.meta$Population))
-colors2[Neop.meta$Population == "dp"] <- "goldenrod"
-colors2[Neop.meta$Population == "ge"] <- "dark blue"
-colors2[Neop.meta$Population == "gl"] <- "dodgerblue"
-colors2[Neop.meta$Population == "wo"] <- "dark red"
-colors2[Neop.meta$Population == "me"] <- "dark green"
-colors2[Neop.meta$Population == "ml"] <- "dark grey"
-colors2[Neop.meta$Population == "la"] <- "purple"
-colors2[Neop.meta$Population == "or"] <- "red"
+colors2[Neop.meta$Population == "dp"] <- "skyblue1"
+colors2[Neop.meta$Population == "ge"] <- "plum2"
+colors2[Neop.meta$Population == "gl"] <- "purple4"
+colors2[Neop.meta$Population == "wo"] <- "dodgerblue3"
+colors2[Neop.meta$Population == "me"] <- "springgreen2"
+colors2[Neop.meta$Population == "ml"] <- "springgreen4"
+colors2[Neop.meta$Population == "la"] <- "midnightblue"
+colors2[Neop.meta$Population == "or"] <- "tomato"
 
-colors <- c("goldenrod", "dodgerblue", "dark blue", "dark red", "dark green", "dark grey", "purple", "red")
+colors <- c("skyblue1", "purple4", "plum2", "dodgerblue3", "springgreen2", "springgreen4", "midnightblue", "tomato")
 
 
 # pdf(file = "LDA_plot.pdf", bg = "white")
@@ -115,18 +115,18 @@ legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "W
 
 
 # Highlight the points for Mendocino
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "red")
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "yellow")
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "springgreen2")
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "springgreen4")
 
 # Plot only Mendocino early and late
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "dark green", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "dark grey", pch = 19, cex = 1.5)
-legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("dark green", "dark grey"), bty = "n", pt.cex = 1.5)
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "springgreen2", pch = 19, las = 1, cex = 1.5, ylim = c(-5, 5.0), xlim = c(-5, 5), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "springgreen4", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Mendocino early", "Mendocino late"), pch = 19, col = c("springgreen2", "springgreen4"), bty = "n", pt.cex = 1.5)
 
 # Plot only points from Goat
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "dark blue", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5), xlab = expression(paste("LD"[1])), ylab = expression(paste("LD"[2])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "dodgerblue", pch = 19, cex = 1.5)
-legend("topleft", legend = c("Goat early", "Goat late"), col = c("dark blue", "dodgerblue"), pch = 19, pt.cex = 1.5, bty = "n")
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "plum2", pch = 19, las = 1, cex = 1.5, ylim = c(-3, 4.0), xlim = c(-5, 5), xlab = expression(paste("LD"[1])), ylab = expression(paste("LD"[2])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "purple4", pch = 19, cex = 1.5)
+legend("topleft", legend = c("Goat early", "Goat late"), col = c("plum2", "purple4"), pch = 19, pt.cex = 1.5, bty = "n")
 
 
 # plot the PCA
@@ -156,14 +156,14 @@ or <- Neop.pc.df[Neop.pc.df$Population == "or", ]
 wo <- Neop.pc.df[Neop.pc.df$Population == "wo", ]
 
 par(mfrow = c(4, 2))
-hist(dp$dp, las = 1, col = "goldenrod", main = "Donner Pass")
-hist(ge$ge, las = 1, col = "dodgerblue", main = "Goat Mtn. - early")
-hist(gl$gl, las = 1, col = "dark red", main = "Goat Mtn. - late")
-hist(la$la, las = 1 , col = "dark green", main = "Lang")
-hist(me$me, las = 1, col = "dark grey", main = "Mendocino - early")
-hist(ml$ml, las = 1, col = "dark blue", main = "Mendocino - late")
-hist(or$or, las = 1, col = "purple", main = "Oregon")
-hist(wo$wo, las = 1, col = "red", main = "Woodfords")
+hist(dp$dp, las = 1, col = "skyblue1", main = "Donner Pass")
+hist(ge$ge, las = 1, col = "plum2", main = "Goat Mtn. - early")
+hist(gl$gl, las = 1, col = "purple4", main = "Goat Mtn. - late")
+hist(la$la, las = 1 , col = "midnightblue", main = "Lang")
+hist(me$me, las = 1, col = "springgreen2", main = "Mendocino - early")
+hist(ml$ml, las = 1, col = "springgreen4", main = "Mendocino - late")
+hist(or$or, las = 1, col = "tomato", main = "Oregon")
+hist(wo$wo, las = 1, col = "dodgerblue3", main = "Woodfords")
 par(mfrow = c(1, 1))
 
 
@@ -239,14 +239,14 @@ plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroi
 #####
 
 colors3 <- matrix(Neophasia.merged$Population, dimnames = list(Neophasia.merged$Population))
-colors3[Neophasia.merged$Population == "dp"] <- "goldenrod"
-colors3[Neophasia.merged$Population == "ge"] <- "dark blue"
-colors3[Neophasia.merged$Population == "gl"] <- "dodgerblue"
-colors3[Neophasia.merged$Population == "wo"] <- "dark red"
-colors3[Neophasia.merged$Population == "me"] <- "dark green"
-colors3[Neophasia.merged$Population == "ml"] <- "dark grey"
-colors3[Neophasia.merged$Population == "la"] <- "purple"
-colors3[Neophasia.merged$Population == "or"] <- "red"
+colors3[Neophasia.merged$Population == "dp"] <- "skyblue1"
+colors3[Neophasia.merged$Population == "ge"] <- "plum2"
+colors3[Neophasia.merged$Population == "gl"] <- "purple4"
+colors3[Neophasia.merged$Population == "wo"] <- "dodgerblue3"
+colors3[Neophasia.merged$Population == "me"] <- "springgreen2"
+colors3[Neophasia.merged$Population == "ml"] <- "springgreen4"
+colors3[Neophasia.merged$Population == "la"] <- "midnightblue"
+colors3[Neophasia.merged$Population == "or"] <- "tomato"
 
 # pdf(file = "Images/Mel-box.pdf", bg = "white")
 boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = TRUE, las = 1)
