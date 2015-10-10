@@ -258,7 +258,7 @@ boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FA
 pd1 <- lm(Neop.meta2$MTL ~ 1)
 pd1.1 <- lm(Neop.meta2$MTL ~ Neop.meta2$Population)
 
-apD1 <- advanced.procD.lm(pd1,pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
+apD1 <- advanced.procD.lm(pd1, pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
 
 
 
