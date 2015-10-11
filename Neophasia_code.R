@@ -108,7 +108,7 @@ colors2[Neop.meta$Population == "or"] <- "tomato"
 colors <- c("skyblue1", "purple4", "plum2", "dodgerblue3", "springgreen2", "springgreen4", "midnightblue", "tomato")
 
 
-# pdf(file = "LDA_plot.pdf", bg = "white")
+# pdf(file = "Images/LDA_plot.pdf", bg = "white")
 plot(Neop.pc.lda$LD1, Neop.pc.lda$LD2, col = colors2, pch = 19, las = 1, ylim = c(-4.5, 4), xlim = c(-4.5, 4.5), xlab = expression(paste("LD"[1], " 69%")), ylab = expression(paste("LD"[2], " 20%")), cex = 1.3)
 legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3)
 # dev.off()
@@ -249,7 +249,15 @@ colors3[Neophasia.merged$Population == "la"] <- "midnightblue"
 colors3[Neophasia.merged$Population == "or"] <- "tomato"
 
 # pdf(file = "Images/Mel-box.pdf", bg = "white")
-boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = TRUE, las = 1)
+boxplot(Neophasia.merged$MTR ~ sort(Neophasia.merged$Population, decreasing = FALSE), col = unique(colors3), outline = FALSE, ylab = "Melanized area", xlab = "Population", varwidth = FALSE, las = 1, staplewex = 0.95, ylim = c(35, 125))
+text(x = 1, y = 113, "D")
+text(x = 2, y = 79, "A")
+text(x = 3, y = 120, "D")
+text(x = 4, y = 104, "CD")
+text(x = 5, y = 85, "A")
+text(x = 6, y = 117, "BC")
+text(x = 7, y = 89, "AB")
+text(x = 8, y = 87, "A")
 # dev.off()
 
 
