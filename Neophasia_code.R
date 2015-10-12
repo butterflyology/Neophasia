@@ -10,7 +10,7 @@ set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
 
 # save(list = ls(), file = "Neophasia_data.R")
-# load("Neophasia_data.R")
+# load("Neophasia_data.RData")
 (SesInf <- sessionInfo())
 
 ##### Remeasurement data to test for error or bias
@@ -340,32 +340,37 @@ plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.ld
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "springgreen4", pch = 19, cex = 1.5)
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "plum2", pch = 19, las = 1, cex = 1.5)
 points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "plum4", pch = 19, cex = 1.5)
+legend("top", legend = c("Mendocino - early", "Mendocino - late", "Goat - early", "Goat - late"), pch = 19, col = c("springgreen2", "springgreen4", "plum2", "plum4"), bty = "n", pt.cex = 1.5)
+
+
 
 # lower right, me
 par(fig = c(0.6, 1, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(1, 1, 1, 1))
-me.pars <- gridPar(pt.bg = "springgreen2")
-plotRefToTarget(reference, Y.me2, method = "TPS", mag = 6, gridPars = me.pars)
+me.pars <- gridPar(tar.pt.bg = "springgreen2", tar.pt.size = 1.5)
+plotRefToTarget(reference, Y.me2, method = "TPS", mag = 5, gridPars = me.pars)
 
 #lower left, ml
 par(fig = c(0.05, 0.45, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ml.pars <- gridPar(pt.bg = "springgreen4")
+ml.pars <- gridPar(tar.pt.bg = "springgreen4", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.ml2, method = "TPS", mag = 5, gridPars = ml.pars)
 
 # upper right, ge
 par(fig = c(0.6, 1, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ge.pars <- gridPar(pt.bg = "plum2")
+ge.pars <- gridPar(tar.pt.bg = "plum2", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.ge2, method = "TPS", mag = 5, gridPars = ge.pars)
 
 #upper left, gl
 par(fig = c(0.05, 0.45, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-gl.pars <- gridPar(pt.bg = "plum4")
+gl.pars <- gridPar(tar.pt.bg = "plum4", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.gl2, method = "TPS", mag = 5, gridPars = gl.pars)
+
 # dev.off()
+
