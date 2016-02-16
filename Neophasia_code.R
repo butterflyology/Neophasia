@@ -96,16 +96,16 @@ unique(Neop.pc.shape$Population) # 8 populations
 
 
 colors2 <- matrix(Neop.meta$Population, dimnames = list(Neop.meta$Population))
-colors2[Neop.meta$Population == "dp"] <- "skyblue1"
-colors2[Neop.meta$Population == "ge"] <- "plum2"
-colors2[Neop.meta$Population == "gl"] <- "purple4"
-colors2[Neop.meta$Population == "wo"] <- "dodgerblue3"
-colors2[Neop.meta$Population == "me"] <- "springgreen2"
-colors2[Neop.meta$Population == "ml"] <- "springgreen4"
-colors2[Neop.meta$Population == "la"] <- "midnightblue"
-colors2[Neop.meta$Population == "or"] <- "tomato"
+colors2[Neop.meta$Population == "dp"] <- "#e31a1c"
+colors2[Neop.meta$Population == "ge"] <- "#a6cee3"
+colors2[Neop.meta$Population == "gl"] <- "#1f78b4"
+colors2[Neop.meta$Population == "wo"] <- "tomato"
+colors2[Neop.meta$Population == "me"] <- "#b2df8a"
+colors2[Neop.meta$Population == "ml"] <- "#33a02c"
+colors2[Neop.meta$Population == "la"] <- "#ff7f00"
+colors2[Neop.meta$Population == "or"] <- "#6a3d9a"
 
-colors <- c("skyblue1", "purple4", "plum2", "dodgerblue3", "springgreen2", "springgreen4", "midnightblue", "tomato")
+colors <- c("#e31a1c", "#1f78b4", "#a6cee3", "tomato", "#b2df8a", "#33a02c", "#ff7f00", "#6a3d9a")
 
 
 # pdf(file = "Images/LDA_plot.pdf", bg = "white")
@@ -335,12 +335,12 @@ Y.gl2 <- Y[, , 3] %*% matrix(c(0, 1, -1, 0), ncol = 2, byrow = TRUE)
 plotRefToTarget(reference, Y.me2, method = "TPS", mag = 1)
 
 
-# pdf(file = "Images/Pairs-plot.pdf", bg = "white")
-plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "springgreen2", pch = 19, las = 1, cex = 1.5, ylim = c(-6, 6.0), xlim = c(-6, 6), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "springgreen4", pch = 19, cex = 1.5)
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "plum2", pch = 19, las = 1, cex = 1.5)
-points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "plum4", pch = 19, cex = 1.5)
-legend("top", legend = c("Mendocino - early", "Mendocino - late", "Goat - early", "Goat - late"), pch = 19, col = c("springgreen2", "springgreen4", "plum2", "plum4"), bty = "n", pt.cex = 1.5)
+# pdf(file = "Images/Pairs-plot2.pdf", bg = "white")
+plot(Neop.pc.lda$LD1[Neop.pc.lda$Population == "me"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "me"], col = "#b2df8a", pch = 19, las = 1, cex = 1.5, ylim = c(-6, 6.0), xlim = c(-6, 6), ylab = expression(paste("LD"[2])), xlab = expression(paste("LD"[1])))
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ml"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ml"], col = "#33a02c", pch = 19, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "ge"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "ge"], col = "#a6cee3", pch = 19, las = 1, cex = 1.5)
+points(Neop.pc.lda$LD1[Neop.pc.lda$Population == "gl"], Neop.pc.lda$LD2[Neop.pc.lda$Population == "gl"], col = "#1f78b4", pch = 19, cex = 1.5)
+legend("top", legend = c("Mendocino - early", "Mendocino - late", "Goat - early", "Goat - late"), pch = 19, col = c("#b2df8a", "#33a02c", "#a6cee3", "#1f78b4"), bty = "n", pt.cex = 1.5)
 
 
 
@@ -348,28 +348,28 @@ legend("top", legend = c("Mendocino - early", "Mendocino - late", "Goat - early"
 par(fig = c(0.6, 1, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(1, 1, 1, 1))
-me.pars <- gridPar(tar.pt.bg = "springgreen2", tar.pt.size = 1.5)
+me.pars <- gridPar(tar.pt.bg = "#b2df8a", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.me2, method = "TPS", mag = 5, gridPars = me.pars)
 
 #lower left, ml
 par(fig = c(0.05, 0.45, 0.1, 0.4), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ml.pars <- gridPar(tar.pt.bg = "springgreen4", tar.pt.size = 1.5)
+ml.pars <- gridPar(tar.pt.bg = "#33a02c", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.ml2, method = "TPS", mag = 5, gridPars = ml.pars)
 
 # upper right, ge
 par(fig = c(0.6, 1, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-ge.pars <- gridPar(tar.pt.bg = "plum2", tar.pt.size = 1.5)
+ge.pars <- gridPar(tar.pt.bg = "#a6cee3", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.ge2, method = "TPS", mag = 5, gridPars = ge.pars)
 
 #upper left, gl
 par(fig = c(0.05, 0.45, 0.63, 0.93), new = TRUE)
 plot.new()
 par(mar = c(rep(1, 4)))
-gl.pars <- gridPar(tar.pt.bg = "plum4", tar.pt.size = 1.5)
+gl.pars <- gridPar(tar.pt.bg = "#1f78b4", tar.pt.size = 1.5)
 plotRefToTarget(reference, Y.gl2, method = "TPS", mag = 5, gridPars = gl.pars)
 
 # dev.off()
