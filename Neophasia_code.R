@@ -4,7 +4,7 @@
 library("geomorph")
 library("MASS")
 library("gdata")
-
+library("gdata")
 
 set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
