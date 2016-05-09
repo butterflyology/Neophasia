@@ -36,7 +36,7 @@ head(xy.vars)
 str(xy.vars)
 
 meas.array <- arrayspecs(A = xy.vars, p = 12, k = 2)
-test.gpa <- gpagen(meas.array, ProcD = TRUE, ShowPlot = TRUE)
+test.gpa <- gpagen(meas.array, ProcD = TRUE)
 
 
 dimnames(test.gpa$coords)[[3]] <- paste(rep("sample", 20), rep(c(1:2), each = 2), sep = "")
@@ -67,7 +67,7 @@ dim(Neop.array) # 12 lms, 222 samples
 dimnames(Neop.array)[[3]] <- Neop.taxa
 Neop.array[1, 1, 1]
 
-Neop.gpa <- gpagen(Neop.array, ProcD = TRUE, ShowPlot = TRUE)
+Neop.gpa <- gpagen(Neop.array, ProcD = TRUE)
 plotOutliers(Neop.gpa$coords) # potential outliers to double check 
 # wo_43, ge_486, la_15, me_164
 
@@ -130,7 +130,6 @@ legend("topleft", legend = c("Goat early", "Goat late"), col = c("plum2", "purpl
 
 
 # plot the PCA
-summary(Neop.pc.shape)$importance
 plot(Neop.pc.shape[, 3], Neop.pc.shape[,4], pch = 19, col = colors2, ylim = c(-0.07, 0.07), xlim = c(-0.07, 0.07))
 legend("bottomleft", legend = c("Donner Pass", "Goat - late", "Goat - early", "Woodfords", "Mendocino - early", "Mendocino - late", "Lang", "Oregon"), col = colors, pch = 19, bty = "n", pt.cex = 1.3) # The differentiation is much clearer in the LDA
 
@@ -176,15 +175,9 @@ par(mfrow = c(1, 1))
 # I think we should just proceed with the unbalanced samples and report results with a mention that it could be an issue. The randomization procedure used by RRPP is solid.
 
 # Using the full data set to ask if shape varies among populations
-pd0 <- lm(Neop.2d ~ 1)
-pd0.1 <- lm(Neop.2d ~ Neop.meta$Population)
-advanced.procD.lm(pd0, pd0.1)
+Neop.gdf <- geomorph.data.frame(coords = Neop.gpa$coords, logcs = log(Neop.gpa$Csize), Population = Neop.meta$Population)
 
-apD0 <- advanced.procD.lm(pd0, pd0.1, groups = ~ Neop.meta$Population, iter = 1e4)
-
-
-
-
+apD0 <- advanced.procD.lm(coords ~ 1, coords ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
 
 
 #####
@@ -225,13 +218,12 @@ dim(Neop.array2) # 12 lms, 180 samples
 dimnames(Neop.array2)[[3]] <- Neop.taxa2
 Neop.array2[1, 1, 1]
 
-Neop.gpa2 <- gpagen(Neop.array2, ProcD = TRUE, ShowPlot = TRUE)
+Neop.gpa2 <- gpagen(Neop.array2, ProcD = TRUE)
 Neop.2d2 <- two.d.array(Neop.gpa2$coords)
 head(Neop.2d2)
 
 # sanity check
 plot(Neop.meta2$WAR, log(Neop.gpa2$Csize), pch = 19) # Wing area and log centroid size very highly correlated. 
-
 
 
 #####
@@ -263,16 +255,15 @@ text(x = 8, y = 87, "A")
 
 
 # Does population explain melanization? This generates the same associations as Figure 7, but without using the model residuals. To me it is more intuitive and has the added benefit of making a population level distance matrix for melanization levels. 
-pd1 <- lm(Neop.meta2$MTL ~ 1)
-pd1.1 <- lm(Neop.meta2$MTL ~ Neop.meta2$Population)
 
-apD1 <- advanced.procD.lm(pd1, pd1.1, groups = ~ Neop.meta2$Population, iter = 1e4)
+Neop.gdf <- geomorph.data.frame(Neop.meta2)
 
+apD1 <- advanced.procD.lm(MTL ~ 1, MTL ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
 
 
 
 # association between pairwise shape distance and genetic distance (Gst)
-Gst <- read.csv("Gst-dist.csv", header = TRUE, row.names = 1)
+Gst <- read.csv("Misc/Gst-dist.csv", header = TRUE, row.names = 1)
 Gst
 
 rownames(Gst)
@@ -280,9 +271,9 @@ colnames(Gst)
 rownames(apD0$Means.dist)
 colnames(apD0$Means.dist)
 
-Sdist.diag <- lowerTriangle(apD0$Means.dist)
+Sdist.diag <- lowerTriangle(apD0$LS.means.dist)
 Gst.diag <- lowerTriangle(Gst)
-Mel.diag <- lowerTriangle(apD1$Means.dist)
+Mel.diag <- lowerTriangle(apD1$LS.means.dist)
 
 
 plot(Gst.diag, Sdist.diag, pch = 19, las = 1, ylab = "Shape distance", xlab = "Genetic distance", xlim = c(0.025, 0.08), ylim = c(0.015, 0.045))
