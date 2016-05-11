@@ -4,7 +4,6 @@
 library("geomorph")
 library("MASS")
 library("gdata")
-library("gdata")
 
 set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
@@ -255,10 +254,17 @@ text(x = 8, y = 87, "A")
 
 
 # Does population explain melanization? This generates the same associations as Figure 7, but without using the model residuals. To me it is more intuitive and has the added benefit of making a population level distance matrix for melanization levels. 
+Neo.csize <- as.data.frame(Neop.gpa$Csize)
+colnames(Neo.csize) <- "Csize"
+Neo.csize$Id <- rownames(Neo.csize)
+head(Neo.csize)
 
-Neop.gdf <- geomorph.data.frame(Neop.meta2)
+Neop.meta3 <- merge(Neop.meta2, Neo.csize, by = "Id")
+Neop.gdf <- geomorph.data.frame(Neop.meta3)
 
 apD1 <- advanced.procD.lm(MTL ~ 1, MTL ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
+
+apD2 <- advanced.procD.lm(MTL/log(Csize) ~ 1, MTL/log(Csize) ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
 
 
 
