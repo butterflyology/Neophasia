@@ -264,6 +264,7 @@ Neop.gdf <- geomorph.data.frame(Neop.meta3)
 
 apD1 <- advanced.procD.lm(MTL ~ 1, MTL ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
 
+# and if we standardize by log centroid size?
 apD2 <- advanced.procD.lm(MTL/log(Csize) ~ 1, MTL/log(Csize) ~ Population, groups = ~ Population, iter = 1e4, data = Neop.gdf)
 
 
