@@ -26,19 +26,12 @@ ml = Mendocino Pass Late (late flight at two flight location), 20
 or = Oregan (univoltine), 14
 wo = Woodfords (univoltine), 29
 
+History of commits:
 
-o 11 April 2015
-Initial commit of code and data
-
-o 25 April 2015
-Added data file for Procrustes ANOVA:
-nwo_43_re_measure.csv
-
+1. 11 April 2015 - Initial commit of code and data
+1. 25 April 2015 - Added data file for Procrustes ANOVA: nwo_43_re_measure.csv
 Also, the covariates file is:
 Neophasia_wings.csv
-
-o 27 April 2015
-Checked remeasured data for errors using MANOVA, nothing systematic found. 
-
-o 3 May 2015
+1. 27 April 2015 - Checked remeasured data for errors using MANOVA, nothing systematic found. 
+1. 3 May 2015 - Updated code to fit new version of Geomorph.
 
