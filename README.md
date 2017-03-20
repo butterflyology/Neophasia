@@ -1,6 +1,8 @@
 **Neophasia** project code and data for Chris Hamm's part
 Basic questions:
 
+Please cite these data and code if you use them: [![DOI](https://zenodo.org/badge/34698249.svg)](https://zenodo.org/badge/latestdoi/34698249)
+
 Are they the same or different?
 Compare sympatric (allochronic) flights
 Compare the overall variation of the species with the variation between sympatric flights.
