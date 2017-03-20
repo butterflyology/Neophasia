@@ -8,7 +8,7 @@ library("gdata")
 set.seed(2342351)
 setwd("~/Desktop/Projects/Neophasia/")
 
-# save(list = ls(), file = "Neophasia_data.R")
+# save(list = ls(), file = "Neophasia_data.RData")
 # load("Neophasia_data.RData")
 (SesInf <- sessionInfo())
 
